@@ -13,7 +13,6 @@ export interface PatchFormDataShape {
   bangumiDevelopers: string[]
   steamTags: string[]
   steamDevelopers: string[]
-  steamAliases: string[]
   dlsiteTags: string[]
   alias: string[]
   tag: string[]

@@ -73,7 +73,6 @@ const EMPTY_DATA = {
   bangumiDevelopers: [],
   steamTags: [],
   steamDevelopers: [],
-  steamAliases: [],
   dlsiteTags: [],
   dlsiteCircleName: '',
   dlsiteCircleLink: ''
@@ -329,12 +328,7 @@ describe('processSubmittedExternalData rejected task logging', () => {
 
     await processSubmittedExternalData(
       1,
-      {
-        ...EMPTY_DATA,
-        vndbTags: ['ADV'],
-        vndbDevelopers: ['Key'],
-        steamAliases: ['Alias']
-      },
+      { ...EMPTY_DATA, vndbTags: ['ADV'], vndbDevelopers: ['Key'] },
       [],
       7
     )
@@ -345,26 +339,7 @@ describe('processSubmittedExternalData rejected task logging', () => {
       error
     )
     expect(tagCreateManyMock).toHaveBeenCalledTimes(1)
-    expect(aliasCreateManyMock).toHaveBeenCalledTimes(1)
     expect(invalidateTagCacheMock).toHaveBeenCalledTimes(1)
-  })
-
-  it('logs alias failures under the alias label', async () => {
-    const error = new Error('alias read failed')
-    aliasFindManyMock.mockRejectedValueOnce(error)
-
-    await processSubmittedExternalData(
-      1,
-      { ...EMPTY_DATA, steamAliases: ['Alias'] },
-      [],
-      7
-    )
-
-    expect(errorSpy).toHaveBeenCalledTimes(1)
-    expect(errorSpy).toHaveBeenCalledWith(
-      'Failed to process external alias data for patch 1:',
-      error
-    )
   })
 
   it('stays silent when every task settles, including skipped ones', async () => {
@@ -375,6 +350,23 @@ describe('processSubmittedExternalData rejected task logging', () => {
       7
     )
 
+    expect(errorSpy).not.toHaveBeenCalled()
+  })
+})
+
+// 别名只由 update.ts 按 alias 全量同步. 这里若再增量补写, 用户在别名框删掉的
+// Steam 别名会在同一次提交里被补回 (曾经的 steamAliases 通道)
+describe('processSubmittedExternalData aliases', () => {
+  it('never writes patch_alias, even for a legacy steamAliases payload', async () => {
+    await processSubmittedExternalData(
+      1,
+      { ...EMPTY_DATA, steamAliases: ['Removed Alias'] } as typeof EMPTY_DATA,
+      [],
+      7
+    )
+
+    expect(aliasFindManyMock).not.toHaveBeenCalled()
+    expect(aliasCreateManyMock).not.toHaveBeenCalled()
     expect(errorSpy).not.toHaveBeenCalled()
   })
 })

@@ -47,7 +47,6 @@ export const PatchHeaderClientEffects = ({
       bangumiDevelopers: [],
       steamTags: [],
       steamDevelopers: [],
-      steamAliases: [],
       dlsiteTags: [],
       name: patch.name,
       introduction: rewrite.introduction,

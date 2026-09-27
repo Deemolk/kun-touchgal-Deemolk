@@ -15,7 +15,6 @@ export interface RewritePatchData {
   bangumiDevelopers: string[]
   steamTags: string[]
   steamDevelopers: string[]
-  steamAliases: string[]
   dlsiteTags: string[]
   name: string
   introduction: string
@@ -48,7 +47,6 @@ const initialState: RewritePatchData = {
   bangumiDevelopers: [],
   steamTags: [],
   steamDevelopers: [],
-  steamAliases: [],
   dlsiteTags: [],
   name: '',
   introduction: '',

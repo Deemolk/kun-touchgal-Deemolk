@@ -71,7 +71,6 @@ const makeInput = () => ({
   bangumiDevelopers: [],
   steamTags: [],
   steamDevelopers: [],
-  steamAliases: [],
   dlsiteTags: [],
   introduction: '这是一段足够长的游戏介绍文本',
   tag: ['标签一'],

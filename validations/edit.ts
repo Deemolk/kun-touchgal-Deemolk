@@ -93,7 +93,6 @@ export const patchCreateSchema = z.object({
   bangumiDevelopers: optionalStringArray,
   steamTags: optionalStringArray,
   steamDevelopers: optionalStringArray,
-  steamAliases: optionalStringArray,
   dlsiteTags: optionalStringArray,
   introduction: z
     .string()
@@ -135,7 +134,6 @@ export const patchUpdateSchema = z.object({
   bangumiDevelopers: z.array(z.string()).optional().default([]),
   steamTags: z.array(z.string()).optional().default([]),
   steamDevelopers: z.array(z.string()).optional().default([]),
-  steamAliases: z.array(z.string()).optional().default([]),
   dlsiteTags: z.array(z.string()).optional().default([]),
   introduction: z
     .string()

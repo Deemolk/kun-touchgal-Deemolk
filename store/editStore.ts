@@ -17,7 +17,6 @@ export interface CreatePatchData {
   bangumiDevelopers: string[]
   steamTags: string[]
   steamDevelopers: string[]
-  steamAliases: string[]
   dlsiteTags: string[]
   alias: string[]
   tag: string[]
@@ -54,7 +53,6 @@ const initialState: CreatePatchData = {
   bangumiDevelopers: [],
   steamTags: [],
   steamDevelopers: [],
-  steamAliases: [],
   dlsiteTags: [],
   alias: [],
   tag: [],

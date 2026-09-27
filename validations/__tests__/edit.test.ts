@@ -153,3 +153,43 @@ describe('dlsiteTags 字段', () => {
     expect(patchUpdateSchema.shape.dlsiteTags.parse(undefined)).toEqual([])
   })
 })
+
+// Steam 别名由 SteamInput 并入 alias。steamAliases 曾是独立通道, 服务端在 alias 全量
+// 同步之后再增量补写, 用户删掉的 Steam 别名提交后又被补回; 旧页面与 localStorage
+// 旧草稿仍可能带上这个键, 必须被 schema 剥掉
+describe('steamAliases 不再是提交字段', () => {
+  const externalIds = {
+    name: '测试 Galgame',
+    vndbId: '',
+    vndbRelationId: '',
+    bangumiId: '',
+    steamId: '',
+    dlsiteCode: '',
+    introduction: '这是一段足够长的游戏介绍文本',
+    contentLimit: 'sfw',
+    released: ''
+  }
+
+  it('create 剥掉遗留的 steamAliases 键', () => {
+    const parsed = patchCreateSchema.parse({
+      ...externalIds,
+      banner: new Blob(['x']),
+      alias: '["保留的别名"]',
+      tag: '[]',
+      steamAliases: '["已删除的 Steam 别名"]'
+    })
+    expect(parsed).not.toHaveProperty('steamAliases')
+  })
+
+  it('update 剥掉遗留的 steamAliases 键', () => {
+    const parsed = patchUpdateSchema.parse({
+      ...externalIds,
+      id: 5,
+      alias: ['保留的别名'],
+      tag: [],
+      steamAliases: ['已删除的 Steam 别名']
+    })
+    expect(parsed).not.toHaveProperty('steamAliases')
+    expect(parsed.alias).toEqual(['保留的别名'])
+  })
+})

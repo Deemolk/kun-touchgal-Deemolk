@@ -128,6 +128,22 @@ const run = async () => {
         await enqueueSearchOutbox(prisma, patch.id)
       }
 
+      // 别名增量写入: 表单提交走 update.ts 的全量同步, 此处不能删掉现有别名;
+      // patch_alias 无 (patch_id, name) 唯一约束, 须先查已有再补
+      const aliasesToAdd = [...new Set(extraAliases)]
+      if (aliasesToAdd.length) {
+        const existingAliases = await prisma.patch_alias.findMany({
+          where: { patch_id: patch.id, name: { in: aliasesToAdd } },
+          select: { name: true }
+        })
+        const existingAliasNames = new Set(existingAliases.map((a) => a.name))
+        await prisma.patch_alias.createMany({
+          data: aliasesToAdd
+            .filter((name) => !existingAliasNames.has(name))
+            .map((name) => ({ name, patch_id: patch.id }))
+        })
+      }
+
       // 新建标签 / 会社的归属用户取条目创建者
       await processSubmittedExternalData(
         patch.id,
@@ -138,7 +154,6 @@ const run = async () => {
           bangumiDevelopers: [],
           steamTags: data.tags,
           steamDevelopers,
-          steamAliases: extraAliases,
           dlsiteTags: [],
           dlsiteCircleName: '',
           dlsiteCircleLink: ''

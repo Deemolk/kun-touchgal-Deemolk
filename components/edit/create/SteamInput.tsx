@@ -105,8 +105,7 @@ export const SteamInput = <T extends PatchFormDataShape>({
         alias,
         released: result.releaseDate || data.released,
         steamTags: result.tags,
-        steamDevelopers: result.developers.map((d) => d.name),
-        steamAliases: extraAliases
+        steamDevelopers: result.developers.map((d) => d.name)
       })
 
       toast.success(`确认: ${result.name}`)

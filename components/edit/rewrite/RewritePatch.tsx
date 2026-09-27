@@ -46,11 +46,9 @@ export const RewritePatch = () => {
 
   const [rewriting, setRewriting] = useState(false)
   const handleSubmit = async () => {
-    // steamAliases 会被服务端 ensureAliases 补写进 patch_alias, 需一并剔除游戏名
     const submitData = {
       ...data,
-      alias: removePatchNameFromAlias(data.alias, data.name),
-      steamAliases: removePatchNameFromAlias(data.steamAliases, data.name)
+      alias: removePatchNameFromAlias(data.alias, data.name)
     }
     const result = patchUpdateSchema.safeParse(submitData)
     if (!result.success) {

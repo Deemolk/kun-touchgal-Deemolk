@@ -10,7 +10,6 @@ interface SubmittedExternalData {
   bangumiDevelopers: string[]
   steamTags: string[]
   steamDevelopers: string[]
-  steamAliases: string[]
   dlsiteTags: string[]
   dlsiteCircleName: string
   dlsiteCircleLink: string
@@ -152,25 +151,6 @@ export const ensureCompanies = async (
   return createdCount > 0 || insertedRelations.count > 0
 }
 
-const ensureAliases = async (patchId: number, aliases: string[]) => {
-  const validAliases = [...new Set(aliases.filter(Boolean))]
-  if (!validAliases.length) return
-
-  const existing = await prisma.patch_alias.findMany({
-    where: { patch_id: patchId, name: { in: validAliases } },
-    select: { name: true }
-  })
-  const existingNames = new Set(existing.map((a) => a.name))
-  const toCreate = validAliases.filter((n) => !existingNames.has(n))
-
-  if (toCreate.length) {
-    await prisma.patch_alias.createMany({
-      data: toCreate.map((name) => ({ name, patch_id: patchId })),
-      skipDuplicates: true
-    })
-  }
-}
-
 export const processSubmittedExternalData = async (
   patchId: number,
   data: SubmittedExternalData,
@@ -222,16 +202,11 @@ export const processSubmittedExternalData = async (
       )
     : null
 
-  const aliasTask = data.steamAliases.length
-    ? ensureAliases(patchId, data.steamAliases)
-    : null
-
   // best-effort: patch 主事务已提交, 上抛只会让用户重试撞 P2002; 但 rejected 必须留痕,
-  // 否则外部标签/会社/别名静默缺失、排障无迹 (82aab687 曾为消 lint 告警删掉此日志)
+  // 否则外部标签/会社静默缺失、排障无迹 (82aab687 曾为消 lint 告警删掉此日志)
   const tasks = [
     ['tag', tagTask],
-    ['company', companyTask],
-    ['alias', aliasTask]
+    ['company', companyTask]
   ] as const
   const results = await Promise.allSettled(tasks.map(([, task]) => task))
   results.forEach((result, index) => {

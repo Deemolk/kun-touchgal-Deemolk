@@ -118,7 +118,6 @@ const makeInput = (banner: ArrayBuffer) => ({
   bangumiDevelopers: [],
   steamTags: [],
   steamDevelopers: [],
-  steamAliases: [],
   dlsiteTags: [],
   alias: ['别名一'],
   tag: ['标签一'],
