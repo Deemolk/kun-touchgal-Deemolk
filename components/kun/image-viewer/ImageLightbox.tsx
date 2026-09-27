@@ -24,6 +24,9 @@ export const KunImageLightbox = ({
   index = 0,
   onClose
 }: Props) => {
+  // 单张图时 yarl 仍会渲染两个禁用态的前后翻页按钮
+  const isSingleSlide = slides.length <= 1
+
   return (
     <Lightbox
       index={index}
@@ -32,18 +35,15 @@ export const KunImageLightbox = ({
       close={onClose}
       plugins={[Zoom, Download]}
       animation={{ fade: 300 }}
+      // 图片尺寸勿用 imageProps 撑满 slide: 小图会被放大发糊, Zoom 上限失准,
+      // 且 img 盖住留白使背景点击无法关闭; yarl 默认不超过原图, 放大交给 Zoom
       carousel={{
         finite: true,
-        preload: 2,
-        imageProps: {
-          style: {
-            maxWidth: 'none',
-            maxHeight: 'none',
-            width: '100%',
-            height: '100%',
-            objectFit: 'contain'
-          }
-        }
+        preload: 2
+      }}
+      render={{
+        buttonPrev: isSingleSlide ? () => null : undefined,
+        buttonNext: isSingleSlide ? () => null : undefined
       }}
       zoom={{
         maxZoomPixelRatio: 3,
