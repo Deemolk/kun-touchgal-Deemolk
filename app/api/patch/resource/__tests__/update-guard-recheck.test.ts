@@ -413,3 +413,86 @@ describe('更新资源在行锁下重算 links diff', () => {
     )
   })
 })
+
+// 预签名直传迁移前的历史 s3 链接: hash 列存 BLAKE3 校验码、s3_key 为空,
+// 对象 key 靠 hash 还原. 编辑表单原样回传该 hash, 不能被当成上传 token
+describe('更新资源保留历史 s3 链接', () => {
+  const legacyLink = {
+    id: 5,
+    storage: 's3',
+    content: 'legacy-c',
+    hash: 'blake3-hash',
+    s3_key: ''
+  }
+  const legacyInputLink = {
+    id: 5,
+    storage: 's3',
+    hash: 'blake3-hash',
+    content: 'legacy-c',
+    size: '100MB',
+    code: '',
+    password: ''
+  }
+
+  beforeEach(() => {
+    resourceFindUniqueMock.mockResolvedValue(
+      buildSnapshot({ links: [legacyLink] })
+    )
+    transactionQueryRawMock.mockResolvedValue([
+      { status: 0, section: 'galgame' }
+    ])
+    transactionLinkFindManyMock.mockResolvedValue([legacyLink])
+    transactionResourceUpdateMock.mockResolvedValue(buildUpdated())
+  })
+
+  it('回传库中原 hash 视为保留, 不走上传绑定且原样保留 hash', async () => {
+    const result = await updatePatchResource(
+      buildInput({ links: [legacyInputLink] }),
+      7,
+      1
+    )
+
+    expect(typeof result).not.toBe('string')
+    expect(bindUploadedResourceMock).not.toHaveBeenCalled()
+    const created =
+      transactionResourceUpdateMock.mock.calls[0][0].data.links.create
+    expect(created).toEqual([
+      expect.objectContaining({
+        storage: 's3',
+        content: 'legacy-c',
+        hash: 'blake3-hash',
+        s3_key: ''
+      })
+    ])
+    expect(enqueueResourceLinkDeletionsMock).toHaveBeenCalledWith(
+      transactionClient,
+      []
+    )
+  })
+
+  it('历史链接换新文件时按 token 绑定, 旧对象按原 hash 入队删除', async () => {
+    bindUploadedResourceMock.mockResolvedValue({
+      downloadLink: 'new-c',
+      s3Key: 'new-k',
+      size: 1
+    })
+
+    const result = await updatePatchResource(
+      buildInput({ links: [{ ...legacyInputLink, hash: 'upload-token' }] }),
+      7,
+      1
+    )
+
+    expect(typeof result).not.toBe('string')
+    expect(bindUploadedResourceMock).toHaveBeenCalledWith(10, 'upload-token', 7)
+    const created =
+      transactionResourceUpdateMock.mock.calls[0][0].data.links.create
+    expect(created).toEqual([
+      expect.objectContaining({ content: 'new-c', hash: '', s3_key: 'new-k' })
+    ])
+    expect(enqueueResourceLinkDeletionsMock).toHaveBeenCalledWith(
+      transactionClient,
+      [{ content: 'legacy-c', patchId: 10, hash: 'blake3-hash', s3Key: '' }]
+    )
+  })
+})

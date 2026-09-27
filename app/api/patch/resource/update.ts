@@ -115,7 +115,11 @@ export const updatePatchResource = async (
       if (link.storage !== 's3') {
         continue
       }
-      if (link.hash) {
+      const snapshotLink =
+        typeof link.id === 'number' ? snapshotLinksById.get(link.id) : null
+      // 直传迁移前的历史 s3 链接 hash 列存 BLAKE3 校验码, 编辑表单会原样回传:
+      // 与库中值相同即保留, 只有不同的非空值才是新上传的 token
+      if (link.hash && link.hash !== snapshotLink?.hash) {
         const result = await bindUploadedResource(patchId, link.hash, uid)
         if (typeof result === 'string') {
           await abandonBoundResourceObjects([...boundLinks.values()], patchId)
@@ -127,9 +131,7 @@ export const updatePatchResource = async (
         })
         continue
       }
-      // 保留型 s3 链接仅做资格预检, content/s3_key 在锁下解析
-      const snapshotLink =
-        typeof link.id === 'number' ? snapshotLinksById.get(link.id) : null
+      // 保留型 s3 链接仅做资格预检, content/s3_key/hash 在锁下解析
       if (!snapshotLink || snapshotLink.storage !== 's3') {
         await abandonBoundResourceObjects([...boundLinks.values()], patchId)
         return '请先上传资源文件'
@@ -226,13 +228,17 @@ export const updatePatchResource = async (
 
       let content = link.content
       let s3Key = ''
+      let hash = link.hash
       if (link.storage === 's3') {
         if (bound) {
           content = bound.content
           s3Key = bound.s3Key
+          hash = ''
         } else if (existingLink && existingLink.storage === 's3') {
           content = existingLink.content
           s3Key = existingLink.s3_key
+          // 历史链接 s3_key 为空, 删除时靠 hash 还原对象 key (resolveS3Key), 须原样保留
+          hash = existingLink.hash
         } else {
           // 资格预检通过但锁下行已被并发编辑重建: 本次编辑的语义基础已失效.
           // 已重绑的新对象随本事务入队清理 —— return 字符串会提交事务, 此前
@@ -268,7 +274,7 @@ export const updatePatchResource = async (
         size: link.size,
         code: link.code,
         password: link.password,
-        hash: link.storage === 's3' ? '' : link.hash,
+        hash,
         s3_key: s3Key,
         content,
         sort_order: index,
