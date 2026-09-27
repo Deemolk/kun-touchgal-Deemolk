@@ -90,7 +90,7 @@ pnpm prisma:generate
 
 ## Runtime/Tooling Preferences
 
-- 使用 Node.js + pnpm，不按 Bun 项目处理。CI 使用 Node 22；仓库当前没有 `engines` 或 `packageManager` 版本锁定，以 lockfile 和 CI 为准。
+- 使用 Node.js + pnpm，不按 Bun 项目处理。CI 使用 Node 26；仓库当前没有 `engines` 或 `packageManager` 版本锁定，以 lockfile 和 CI 为准。
 - `package.json` 为 ESM（`"type": "module"`）；TypeScript 运维脚本通过 `esno` 执行。
 - TypeScript 为 strict、ESNext、bundler resolution、`noEmit`；别名 `~/*` 指向仓库根目录。
 - Tailwind v4 仅通过 `postcss.config.js` 的 `@tailwindcss/postcss` 接入，没有 `tailwind.config.*`；主题入口使用现有样式文件，不新增旧版配置。
@@ -106,5 +106,15 @@ pnpm prisma:generate
 - 现有模式使用 `describe`/`it`/`expect`、`vi.hoisted` + `vi.mock` 隔离 Prisma、Next、认证、缓存、S3 与搜索；fixture 通常内联，`beforeEach` 重置并设置确定性返回值。
 - 事务测试应验证可观察结果以及 lock/commit/rollback/retry 顺序；API 测试覆盖成功路径和业务错误字符串，不测试源码文本或实现细节。
 - 修改行为后先运行对应文件：`pnpm test -- <path>`，再运行 `pnpm typecheck`。共享服务、事务或 CI 相关变更运行全量 `pnpm test`；路由、Next 配置、Prisma 或 standalone 变更再运行 `pnpm build`。
-- CI 在 Node 22 上依次执行复制 `.env.example`（须在安装前，postinstall 的 `prisma generate` 依赖 `KUN_DATABASE_URL`）、安装、`pnpm prisma:generate`、`pnpm lint`、`pnpm typecheck` 和 `pnpm test`。
+- CI 在 Node 26 上依次执行复制 `.env.example`（须在安装前，postinstall 的 `prisma generate` 依赖 `KUN_DATABASE_URL`）、安装、`pnpm prisma:generate`、`pnpm lint`、`pnpm typecheck` 和 `pnpm test`。
 - 当前没有全局 test setup、快照、浏览器/E2E runner、真实集成数据库 harness 或覆盖率配置；没有数值覆盖率门槛。不要声称覆盖率或端到端验证，除非单独实际执行。
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->
