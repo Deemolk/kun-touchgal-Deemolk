@@ -15,6 +15,7 @@ import {
   useDisclosure
 } from '@heroui/react'
 import { useState } from 'react'
+import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { ExternalLink } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -27,6 +28,14 @@ import {
   MODERATION_TASK_STATUS_MAP
 } from '~/constants/moderation'
 import type { AdminModerationTask } from '~/types/api/admin'
+
+const KunImageLightbox = dynamic(
+  () =>
+    import('~/components/kun/image-viewer/ImageLightbox').then(
+      (mod) => mod.KunImageLightbox
+    ),
+  { ssr: false }
+)
 
 const statusColorMap: Record<
   string,
@@ -81,6 +90,7 @@ export const ModerationTaskCard = ({
   const [reviewing, setReviewing] = useState(false)
   const [retrying, setRetrying] = useState(false)
   const [pendingApprove, setPendingApprove] = useState(false)
+  const [isAvatarLightboxOpen, setIsAvatarLightboxOpen] = useState(false)
   const { isOpen, onOpen, onClose } = useDisclosure()
 
   const openReviewModal = (approve: boolean) => {
@@ -152,6 +162,12 @@ export const ModerationTaskCard = ({
           )
         : buildContentLink(task.patch.uniqueId, task.contentId)
       : null
+
+  // 优先用永久留档; 留档功能上线前的旧任务回退 pending 链接 (裁决后可能已失效)
+  const avatarSrc =
+    task.contentType === 'avatar'
+      ? task.payload.archiveLink || task.payload.pendingLink
+      : undefined
 
   return (
     <>
@@ -232,14 +248,20 @@ export const ModerationTaskCard = ({
             )}
           </div>
 
-          {task.contentType === 'avatar' &&
-          (task.payload.archiveLink || task.payload.pendingLink) ? (
-            // 优先用永久留档; 留档功能上线前的旧任务回退 pending 链接 (裁决后可能已失效)
-            <img
-              src={task.payload.archiveLink ?? task.payload.pendingLink}
-              alt="送审头像"
-              className="size-16 rounded-full object-cover"
-            />
+          {avatarSrc ? (
+            // 卡片内圆形裁切只作缩略, 点开灯箱看未裁切的原图 (留档为 256px 内的原比例)
+            <button
+              type="button"
+              aria-label="查看送审头像大图"
+              className="block size-16 cursor-zoom-in rounded-full"
+              onClick={() => setIsAvatarLightboxOpen(true)}
+            >
+              <img
+                src={avatarSrc}
+                alt="送审头像"
+                className="size-16 rounded-full object-cover"
+              />
+            </button>
           ) : (
             <p className="whitespace-pre-wrap break-all rounded-lg bg-default-100 p-2 text-sm">
               {task.payload.text || '(无文本)'}
@@ -301,6 +323,14 @@ export const ModerationTaskCard = ({
           </div>
         </CardBody>
       </Card>
+
+      {avatarSrc && isAvatarLightboxOpen && (
+        <KunImageLightbox
+          open
+          slides={[{ src: avatarSrc }]}
+          onClose={() => setIsAvatarLightboxOpen(false)}
+        />
+      )}
 
       <Modal isOpen={isOpen} onClose={onClose} placement="center">
         <ModalContent>
