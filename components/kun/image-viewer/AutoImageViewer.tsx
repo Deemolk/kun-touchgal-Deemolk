@@ -4,8 +4,13 @@ import { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 import { useMounted } from '~/hooks/useMounted'
 
+// 只接管用户内容里的图片 (简介 / 评论 / 资源备注 / 评论预览, 均为 kun-prose-compact
+// 容器), 头像、游戏卡片等界面图片不接管
 const shouldSkipLightbox = (img: HTMLImageElement) => {
-  return Boolean(img.closest('[data-no-lightbox], .yarl__portal'))
+  return (
+    !img.closest('.kun-prose-compact') ||
+    Boolean(img.closest('[data-no-lightbox], .yarl__portal'))
+  )
 }
 
 const KunImageLightbox = dynamic(
@@ -44,14 +49,12 @@ export const KunAutoImageViewer = () => {
         return
       }
 
-      const rect = img.getBoundingClientRect()
-      const renderedWidth = rect.width || img.width
-      const renderedHeight = rect.height || img.height
-      const width = img.naturalWidth || renderedWidth
-      const height = img.naturalHeight || renderedHeight
+      // 按原图尺寸筛掉表情等小图; 渲染尺寸随视口缩放, 手机上 16:9 截图高度不足 200
+      const width = img.naturalWidth
+      const height = img.naturalHeight
       const src = img.currentSrc || img.src
 
-      if (renderedWidth >= 200 && renderedHeight >= 200) {
+      if (width >= 200 && height >= 200) {
         setImages((prev) => {
           const exists = prev.some((image) => image.src === src)
           if (!exists) {
