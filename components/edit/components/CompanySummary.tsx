@@ -2,9 +2,11 @@
 
 import { Chip } from '@heroui/react'
 import type { PatchFormDataShape } from '~/components/edit/types'
+import { removeExternalCompany } from '~/utils/removeExternalPatchData'
 
-interface Props {
-  data: PatchFormDataShape
+interface Props<T extends PatchFormDataShape> {
+  data: T
+  setData: (data: T) => void
 }
 
 interface CompanyEntry {
@@ -12,7 +14,10 @@ interface CompanyEntry {
   source: string
 }
 
-export const CompanySummary = ({ data }: Props) => {
+export const CompanySummary = <T extends PatchFormDataShape>({
+  data,
+  setData
+}: Props<T>) => {
   const entries: CompanyEntry[] = []
 
   for (const name of data.vndbDevelopers) {
@@ -42,7 +47,12 @@ export const CompanySummary = ({ data }: Props) => {
       </p>
       <div className="flex flex-wrap gap-2">
         {unique.map((entry) => (
-          <Chip key={`${entry.source}-${entry.name}`} variant="flat" size="sm">
+          <Chip
+            key={`${entry.source}-${entry.name}`}
+            variant="flat"
+            size="sm"
+            onClose={() => setData(removeExternalCompany(data, entry.name))}
+          >
             {entry.name}
             <span className="ml-1 text-default-400">({entry.source})</span>
           </Chip>

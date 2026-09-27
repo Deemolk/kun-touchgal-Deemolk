@@ -129,7 +129,7 @@ export const RewritePatch = () => {
             <KunDualEditorProvider storeName="patchRewrite" />
           </div>
 
-          <CompanySummary data={data} />
+          <CompanySummary data={data} setData={setData} />
 
           <AliasManager
             aliasList={data.alias}
@@ -157,16 +157,7 @@ export const RewritePatch = () => {
             errors={errors.released}
           />
 
-          <BatchTag
-            data={data}
-            saveTag={(tag) =>
-              setData({
-                ...data,
-                tag
-              })
-            }
-            errors={errors.tag}
-          />
+          <BatchTag data={data} setData={setData} errors={errors.tag} />
 
           <ContentLimit errors={errors.contentLimit} />
 

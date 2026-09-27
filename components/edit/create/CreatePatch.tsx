@@ -111,7 +111,7 @@ export const CreatePatch = () => {
 
           <AliasInput errors={errors.alias} />
 
-          <CompanySummary data={data} />
+          <CompanySummary data={data} setData={setData} />
 
           <ReleaseDateInput
             date={data.released}
@@ -121,16 +121,7 @@ export const CreatePatch = () => {
             errors={errors.released}
           />
 
-          <BatchTag
-            data={data}
-            saveTag={(tag) =>
-              setData({
-                ...data,
-                tag
-              })
-            }
-            errors={errors.tag}
-          />
+          <BatchTag data={data} setData={setData} errors={errors.tag} />
 
           <ContentLimit errors={errors.contentLimit} />
 

@@ -7,6 +7,7 @@ import {
   normalizeStringArray,
   parseCommaSeparatedStringArray
 } from '~/utils/normalizeStringArray'
+import { removeExternalTag } from '~/utils/removeExternalPatchData'
 
 interface TagEntry {
   name: string
@@ -44,13 +45,17 @@ const collectExternalTags = (data: PatchFormDataShape): TagEntry[] => {
   )
 }
 
-interface Props {
-  data: PatchFormDataShape
-  saveTag: (tag: string[]) => void
+interface Props<T extends PatchFormDataShape> {
+  data: T
+  setData: (data: T) => void
   errors?: string
 }
 
-export const BatchTag = ({ data, saveTag, errors }: Props) => {
+export const BatchTag = <T extends PatchFormDataShape>({
+  data,
+  setData,
+  errors
+}: Props<T>) => {
   const externalTags = collectExternalTags(data)
   const [manualTagInput, setManualTagInput] = useState(() =>
     normalizeStringArray(data.tag).join(',')
@@ -84,6 +89,7 @@ export const BatchTag = ({ data, saveTag, errors }: Props) => {
                 variant="flat"
                 size="sm"
                 color={SOURCE_COLORS[entry.source]}
+                onClose={() => setData(removeExternalTag(data, entry.name))}
               >
                 {entry.name}
                 <span className="ml-1 opacity-60">({entry.source})</span>
@@ -101,7 +107,7 @@ export const BatchTag = ({ data, saveTag, errors }: Props) => {
           onChange={(e) => {
             const input = e.target.value
             setManualTagInput(input)
-            saveTag(parseCommaSeparatedStringArray(input))
+            setData({ ...data, tag: parseCommaSeparatedStringArray(input) })
           }}
           className="w-full"
           minRows={3}
