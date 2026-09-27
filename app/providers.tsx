@@ -23,7 +23,8 @@ export const Providers = ({
       options={{ showSpinner: false }}
     >
       <KunRouterProvider>
-        <HeroUIProvider navigate={router.push}>
+        {/* react-aria 家族单实例后弹层读屏文案随 HeroUIProvider 的 locale（默认 en-US），显式固定中文 */}
+        <HeroUIProvider locale="zh-CN" navigate={router.push}>
           <ThemeProvider attribute="class">
             <KunNowProvider now={now}>{children}</KunNowProvider>
           </ThemeProvider>
