@@ -12,6 +12,7 @@ import { patchCreateSchema } from '~/validations/edit'
 import { useRouter } from '@bprogress/next/app'
 import { cn } from '~/utils/cn'
 import { normalizeStringArray } from '~/utils/normalizeStringArray'
+import { removePatchNameFromAlias } from '~/utils/removePatchNameFromAlias'
 import type { Dispatch, SetStateAction } from 'react'
 import type { CreatePatchRequestData } from '~/store/editStore'
 
@@ -52,7 +53,15 @@ export const PublishButton = ({ setErrors, className }: Props) => {
         return
       }
 
-      const sanitizedAlias = normalizeStringArray(data.alias)
+      // steamAliases 会被服务端 ensureAliases 补写进 patch_alias, 需一并剔除游戏名
+      const sanitizedAlias = removePatchNameFromAlias(
+        normalizeStringArray(data.alias),
+        data.name
+      )
+      const sanitizedSteamAliases = removePatchNameFromAlias(
+        data.steamAliases,
+        data.name
+      )
       const sanitizedTag = normalizeStringArray(data.tag)
 
       const result = patchCreateSchema.safeParse({
@@ -66,7 +75,7 @@ export const PublishButton = ({ setErrors, className }: Props) => {
         bangumiDevelopers: JSON.stringify(data.bangumiDevelopers),
         steamTags: JSON.stringify(data.steamTags),
         steamDevelopers: JSON.stringify(data.steamDevelopers),
-        steamAliases: JSON.stringify(data.steamAliases),
+        steamAliases: JSON.stringify(sanitizedSteamAliases),
         dlsiteTags: JSON.stringify(data.dlsiteTags)
       })
       if (!result.success) {
@@ -112,7 +121,10 @@ export const PublishButton = ({ setErrors, className }: Props) => {
         'steamDevelopers',
         JSON.stringify(data.steamDevelopers)
       )
-      formDataToSend.append('steamAliases', JSON.stringify(data.steamAliases))
+      formDataToSend.append(
+        'steamAliases',
+        JSON.stringify(sanitizedSteamAliases)
+      )
       formDataToSend.append('dlsiteTags', JSON.stringify(data.dlsiteTags))
       formDataToSend.append('introduction', data.introduction)
       formDataToSend.append('alias', JSON.stringify(sanitizedAlias))

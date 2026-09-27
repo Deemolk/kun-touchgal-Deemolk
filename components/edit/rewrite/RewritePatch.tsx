@@ -10,6 +10,7 @@ import { kunFetchPut } from '~/utils/kunFetch'
 import { errorReporter, kunErrorHandler } from '~/utils/kunErrorHandler'
 import { patchUpdateSchema } from '~/validations/edit'
 import { useRouter } from '@bprogress/next/app'
+import { removePatchNameFromAlias } from '~/utils/removePatchNameFromAlias'
 import { GameNameInput } from './GameNameInput'
 import { AliasManager } from './AliasManager'
 import { ContentLimit } from './ContentLimit'
@@ -45,7 +46,13 @@ export const RewritePatch = () => {
 
   const [rewriting, setRewriting] = useState(false)
   const handleSubmit = async () => {
-    const result = patchUpdateSchema.safeParse(data)
+    // steamAliases 会被服务端 ensureAliases 补写进 patch_alias, 需一并剔除游戏名
+    const submitData = {
+      ...data,
+      alias: removePatchNameFromAlias(data.alias, data.name),
+      steamAliases: removePatchNameFromAlias(data.steamAliases, data.name)
+    }
+    const result = patchUpdateSchema.safeParse(submitData)
     if (!result.success) {
       const newErrors: Partial<Record<keyof RewritePatchData, string>> = {}
       result.error.issues.forEach((err) => {
@@ -63,7 +70,7 @@ export const RewritePatch = () => {
     setRewriting(true)
 
     try {
-      const res = await kunFetchPut<KunResponse<{}>>('/edit', { ...data })
+      const res = await kunFetchPut<KunResponse<{}>>('/edit', submitData)
       kunErrorHandler(res, () => {
         toast.success('重新编辑成功')
         router.push(`/${data.uniqueId}`)
