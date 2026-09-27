@@ -119,6 +119,7 @@ const makeInput = (banner: ArrayBuffer) => ({
   steamTags: [],
   steamDevelopers: [],
   steamAliases: [],
+  dlsiteTags: [],
   alias: ['别名一'],
   tag: ['标签一'],
   banner,
@@ -325,5 +326,18 @@ describe('createGalgame', () => {
     expect(invalidateUserSessionMock).toHaveBeenCalledWith(1)
     expect(processSubmittedExternalDataMock).toHaveBeenCalledTimes(1)
     expect(queueSearchSyncMock).toHaveBeenCalledWith(42)
+  }, 30000)
+
+  it('DLsite 标签随外部来源透传, 不混入手动标签', async () => {
+    const image = await createPng(400, 300)
+
+    await createGalgame({ ...makeInput(image), dlsiteTags: ['純愛'] }, 1)
+
+    expect(processSubmittedExternalDataMock).toHaveBeenCalledWith(
+      42,
+      expect.objectContaining({ dlsiteTags: ['純愛'] }),
+      ['标签一'],
+      1
+    )
   }, 30000)
 })

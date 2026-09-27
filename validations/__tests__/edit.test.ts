@@ -139,3 +139,17 @@ describe('name 与 released 的长度上限', () => {
     )
   })
 })
+
+// schema 未声明的键会被 zod 静默剥掉, 服务端就收不到 DLsite 标签
+describe('dlsiteTags 字段', () => {
+  it('create 把 FormData 里的 JSON 字符串解析为数组', () => {
+    expect(patchCreateSchema.shape.dlsiteTags.parse('["純愛"]')).toEqual([
+      '純愛'
+    ])
+  })
+
+  it('update 接受数组, 缺省时回落为空数组', () => {
+    expect(patchUpdateSchema.shape.dlsiteTags.parse(['純愛'])).toEqual(['純愛'])
+    expect(patchUpdateSchema.shape.dlsiteTags.parse(undefined)).toEqual([])
+  })
+})

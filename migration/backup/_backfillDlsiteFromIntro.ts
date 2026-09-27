@@ -316,6 +316,7 @@ const run = async () => {
             steamTags: [],
             steamDevelopers: [],
             steamAliases: extraAliases,
+            dlsiteTags: [],
             dlsiteCircleName: circleName,
             dlsiteCircleLink: circleLink
           },

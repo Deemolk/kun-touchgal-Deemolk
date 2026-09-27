@@ -14,6 +14,7 @@ export interface PatchFormDataShape {
   steamTags: string[]
   steamDevelopers: string[]
   steamAliases: string[]
+  dlsiteTags: string[]
   alias: string[]
   tag: string[]
   released: string

@@ -18,6 +18,7 @@ export interface CreatePatchData {
   steamTags: string[]
   steamDevelopers: string[]
   steamAliases: string[]
+  dlsiteTags: string[]
   alias: string[]
   tag: string[]
   released: string
@@ -54,6 +55,7 @@ const initialState: CreatePatchData = {
   steamTags: [],
   steamDevelopers: [],
   steamAliases: [],
+  dlsiteTags: [],
   alias: [],
   tag: [],
   released: '',
@@ -71,7 +73,16 @@ export const useCreatePatchStore = create<StoreState>()(
     {
       name: createPatchEditStoreKey,
       storage: createJSONStorage(() => window.localStorage),
-      skipHydration: true
+      skipHydration: true,
+      // 默认浅合并会用旧草稿的整份 data 盖掉 initialState, 草稿里没有的新增字段
+      // (如 dlsiteTags) 变成 undefined, BatchTag 遍历时整页崩溃
+      merge: (persisted, current) => ({
+        ...current,
+        data: {
+          ...current.data,
+          ...(persisted as Partial<StoreState> | undefined)?.data
+        }
+      })
     }
   )
 )

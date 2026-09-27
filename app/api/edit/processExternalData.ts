@@ -11,6 +11,7 @@ interface SubmittedExternalData {
   steamTags: string[]
   steamDevelopers: string[]
   steamAliases: string[]
+  dlsiteTags: string[]
   dlsiteCircleName: string
   dlsiteCircleLink: string
 }
@@ -190,7 +191,8 @@ export const processSubmittedExternalData = async (
     [
       { names: data.vndbTags, source: 'vndb' },
       { names: data.bangumiTags, source: 'bangumi' },
-      { names: data.steamTags, source: 'steam' }
+      { names: data.steamTags, source: 'steam' },
+      { names: data.dlsiteTags, source: 'dlsite' }
     ],
     uid,
     mutationState

@@ -78,6 +78,7 @@ export const createGalgame = async (input: CreateGalgameInput, uid: number) => {
     steamTags,
     steamDevelopers,
     steamAliases,
+    dlsiteTags,
     alias,
     banner,
     bannerOriginal,
@@ -272,6 +273,7 @@ export const createGalgame = async (input: CreateGalgameInput, uid: number) => {
       steamTags,
       steamDevelopers,
       steamAliases,
+      dlsiteTags,
       dlsiteCircleName: dlsiteCircleName ?? '',
       dlsiteCircleLink: dlsiteCircleLink ?? ''
     },

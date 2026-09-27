@@ -115,7 +115,6 @@ export const DLSiteInput = <T extends PatchFormDataShape>({
         result.title_jp,
         result.title_en
       ]).filter((a) => a !== data.name)
-      const tags = normalizeStringArray([...data.tag, ...parsedTags])
 
       setData({
         ...data,
@@ -123,7 +122,7 @@ export const DLSiteInput = <T extends PatchFormDataShape>({
         dlsiteCircleName: result.circle_name?.trim() ?? '',
         dlsiteCircleLink: result.circle_link?.trim() ?? '',
         alias,
-        tag: tags,
+        dlsiteTags: parsedTags,
         released: result.release_date || data.released
       })
 

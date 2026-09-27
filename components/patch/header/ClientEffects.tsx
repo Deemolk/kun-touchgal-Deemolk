@@ -48,6 +48,7 @@ export const PatchHeaderClientEffects = ({
       steamTags: [],
       steamDevelopers: [],
       steamAliases: [],
+      dlsiteTags: [],
       name: patch.name,
       introduction: rewrite.introduction,
       alias: patch.alias,

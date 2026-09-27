@@ -16,6 +16,7 @@ export interface RewritePatchData {
   steamTags: string[]
   steamDevelopers: string[]
   steamAliases: string[]
+  dlsiteTags: string[]
   name: string
   introduction: string
   alias: string[]
@@ -48,6 +49,7 @@ const initialState: RewritePatchData = {
   steamTags: [],
   steamDevelopers: [],
   steamAliases: [],
+  dlsiteTags: [],
   name: '',
   introduction: '',
   alias: [],

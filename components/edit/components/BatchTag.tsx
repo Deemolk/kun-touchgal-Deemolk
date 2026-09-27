@@ -13,10 +13,14 @@ interface TagEntry {
   source: string
 }
 
-const SOURCE_COLORS: Record<string, 'secondary' | 'success' | 'warning'> = {
+const SOURCE_COLORS: Record<
+  string,
+  'primary' | 'secondary' | 'success' | 'warning'
+> = {
   VNDB: 'secondary',
   Bangumi: 'success',
-  Steam: 'warning'
+  Steam: 'warning',
+  DLsite: 'primary'
 }
 
 const collectExternalTags = (data: PatchFormDataShape): TagEntry[] => {
@@ -30,6 +34,9 @@ const collectExternalTags = (data: PatchFormDataShape): TagEntry[] => {
   }
   for (const name of data.steamTags) {
     if (name.trim()) entries.push({ name: name.trim(), source: 'Steam' })
+  }
+  for (const name of data.dlsiteTags) {
+    if (name.trim()) entries.push({ name: name.trim(), source: 'DLsite' })
   }
 
   return entries.filter(

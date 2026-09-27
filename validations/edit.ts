@@ -94,6 +94,7 @@ export const patchCreateSchema = z.object({
   steamTags: optionalStringArray,
   steamDevelopers: optionalStringArray,
   steamAliases: optionalStringArray,
+  dlsiteTags: optionalStringArray,
   introduction: z
     .string()
     .trim()
@@ -135,6 +136,7 @@ export const patchUpdateSchema = z.object({
   steamTags: z.array(z.string()).optional().default([]),
   steamDevelopers: z.array(z.string()).optional().default([]),
   steamAliases: z.array(z.string()).optional().default([]),
+  dlsiteTags: z.array(z.string()).optional().default([]),
   introduction: z
     .string()
     .trim()

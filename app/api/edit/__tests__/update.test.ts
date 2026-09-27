@@ -72,6 +72,7 @@ const makeInput = () => ({
   steamTags: [],
   steamDevelopers: [],
   steamAliases: [],
+  dlsiteTags: [],
   introduction: '这是一段足够长的游戏介绍文本',
   tag: ['标签一'],
   alias: ['别名一'],
@@ -320,5 +321,16 @@ describe('updateGalgame', () => {
     expect(processSubmittedExternalDataMock).toHaveBeenCalledTimes(1)
     expect(queueSearchSyncMock).toHaveBeenCalledWith(5)
     expect(invalidatePatchContentCacheMock).toHaveBeenCalledWith('abcd1234')
+  })
+
+  it('DLsite 标签随外部来源透传, 不混入手动标签', async () => {
+    await updateGalgame({ ...makeInput(), dlsiteTags: ['純愛'] }, 1)
+
+    expect(processSubmittedExternalDataMock).toHaveBeenCalledWith(
+      5,
+      expect.objectContaining({ dlsiteTags: ['純愛'] }),
+      ['标签一'],
+      1
+    )
   })
 })

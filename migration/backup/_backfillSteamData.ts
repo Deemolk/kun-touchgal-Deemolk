@@ -139,6 +139,7 @@ const run = async () => {
           steamTags: data.tags,
           steamDevelopers,
           steamAliases: extraAliases,
+          dlsiteTags: [],
           dlsiteCircleName: '',
           dlsiteCircleLink: ''
         },

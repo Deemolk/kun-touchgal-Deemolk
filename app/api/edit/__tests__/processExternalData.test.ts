@@ -74,6 +74,7 @@ const EMPTY_DATA = {
   steamTags: [],
   steamDevelopers: [],
   steamAliases: [],
+  dlsiteTags: [],
   dlsiteCircleName: '',
   dlsiteCircleLink: ''
 }
@@ -287,6 +288,37 @@ describe('processSubmittedExternalData tag length guard', () => {
 
     expect(tagFindManyMock).not.toHaveBeenCalled()
     expect(tagCreateManyMock).not.toHaveBeenCalled()
+  })
+})
+
+describe('processSubmittedExternalData tag source', () => {
+  it('creates DLsite tags with the dlsite source', async () => {
+    await processSubmittedExternalData(
+      1,
+      { ...EMPTY_DATA, dlsiteTags: ['純愛'] },
+      [],
+      7
+    )
+
+    expect(handleBatchPatchTagsMock).not.toHaveBeenCalled()
+    expect(tagCreateManyMock).toHaveBeenCalledTimes(1)
+    expect(tagCreateManyMock.mock.calls[0][0].data).toEqual([
+      { name: '純愛', user_id: 7, source: 'dlsite' }
+    ])
+  })
+
+  it('keeps the earlier source when DLsite repeats a VNDB tag', async () => {
+    await processSubmittedExternalData(
+      1,
+      { ...EMPTY_DATA, vndbTags: ['ADV'], dlsiteTags: ['ADV', '純愛'] },
+      [],
+      7
+    )
+
+    expect(tagCreateManyMock.mock.calls[0][0].data).toEqual([
+      { name: 'ADV', user_id: 7, source: 'vndb' },
+      { name: '純愛', user_id: 7, source: 'dlsite' }
+    ])
   })
 })
 

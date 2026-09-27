@@ -98,6 +98,7 @@ export const updateGalgame = async (
     steamTags,
     steamDevelopers,
     steamAliases,
+    dlsiteTags,
     name,
     alias,
     introduction,
@@ -173,6 +174,7 @@ export const updateGalgame = async (
       steamTags: steamTags ?? [],
       steamDevelopers: steamDevelopers ?? [],
       steamAliases: steamAliases ?? [],
+      dlsiteTags: dlsiteTags ?? [],
       dlsiteCircleName: dlsiteCircleName ?? '',
       dlsiteCircleLink: dlsiteCircleLink ?? ''
     },

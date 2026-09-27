@@ -66,7 +66,8 @@ export const PublishButton = ({ setErrors, className }: Props) => {
         bangumiDevelopers: JSON.stringify(data.bangumiDevelopers),
         steamTags: JSON.stringify(data.steamTags),
         steamDevelopers: JSON.stringify(data.steamDevelopers),
-        steamAliases: JSON.stringify(data.steamAliases)
+        steamAliases: JSON.stringify(data.steamAliases),
+        dlsiteTags: JSON.stringify(data.dlsiteTags)
       })
       if (!result.success) {
         const newErrors: Partial<Record<keyof CreatePatchRequestData, string>> =
@@ -112,6 +113,7 @@ export const PublishButton = ({ setErrors, className }: Props) => {
         JSON.stringify(data.steamDevelopers)
       )
       formDataToSend.append('steamAliases', JSON.stringify(data.steamAliases))
+      formDataToSend.append('dlsiteTags', JSON.stringify(data.dlsiteTags))
       formDataToSend.append('introduction', data.introduction)
       formDataToSend.append('alias', JSON.stringify(sanitizedAlias))
       formDataToSend.append('tag', JSON.stringify(sanitizedTag))
