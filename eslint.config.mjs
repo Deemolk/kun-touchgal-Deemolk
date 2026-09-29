@@ -15,6 +15,9 @@ export default defineConfig([
     '.next-previous/',
     // Agent 隔离运行的 worktree, 每个都是完整源码副本 (eslint 不读 .gitignore)
     '.claude/',
+    // gitignore 的本地工作区, 内含 perf-audit 留下的压缩包产物 (单文件 450KB), 全量 lint 会跑 10 分钟以上;
+    // tsconfig 与 vitest 已同样排除, CI 的 checkout 里没有这个目录
+    'docs/',
     'node_modules/',
     'prisma/generated/',
     'migration/backup/'
