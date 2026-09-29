@@ -22,10 +22,10 @@ const KunImageLightbox = dynamic(
 )
 
 export const KunAutoImageViewer = () => {
-  const [openImage, setOpenImage] = useState<string | null>(null)
-  const [images, setImages] = useState<
-    { src: string; width: number; height: number }[]
-  >([])
+  const [lightbox, setLightbox] = useState<{
+    slides: { src: string; width: number; height: number }[]
+    index: number
+  } | null>(null)
   const isMounted = useMounted()
 
   useEffect(() => {
@@ -41,7 +41,19 @@ export const KunAutoImageViewer = () => {
         return
       }
 
-      setOpenImage(currentTarget.currentSrc || currentTarget.src)
+      // 点击时按文档顺序 (即页面上从左到右、从上到下) 取当前可见的图片; 按 load
+      // 先后累积会被懒加载与网速打乱, 还会混入已卸载的和隐藏 tab 面板里的图片
+      const targets = Array.from(document.querySelectorAll('img')).filter(
+        (img) => processedImages.has(img) && img.getClientRects().length > 0
+      )
+      setLightbox({
+        slides: targets.map((img) => ({
+          src: img.currentSrc || img.src,
+          width: img.naturalWidth,
+          height: img.naturalHeight
+        })),
+        index: targets.indexOf(currentTarget)
+      })
     }
 
     const checkImageDimensions = (img: HTMLImageElement) => {
@@ -50,19 +62,7 @@ export const KunAutoImageViewer = () => {
       }
 
       // 按原图尺寸筛掉表情等小图; 渲染尺寸随视口缩放, 手机上 16:9 截图高度不足 200
-      const width = img.naturalWidth
-      const height = img.naturalHeight
-      const src = img.currentSrc || img.src
-
-      if (width >= 200 && height >= 200) {
-        setImages((prev) => {
-          const exists = prev.some((image) => image.src === src)
-          if (!exists) {
-            return [...prev, { src, width, height }]
-          }
-          return prev
-        })
-
+      if (img.naturalWidth >= 200 && img.naturalHeight >= 200) {
         if (!processedImages.has(img)) {
           processedImages.add(img)
           img.style.cursor = 'pointer'
@@ -119,22 +119,16 @@ export const KunAutoImageViewer = () => {
     }
   }, [isMounted])
 
-  const currentImageIndex = openImage
-    ? images.findIndex((img) => img.src === openImage)
-    : -1
-  const visibleImages =
-    openImage && currentImageIndex < 0 ? [{ src: openImage }] : images
-
-  if (!openImage) {
+  if (!lightbox) {
     return null
   }
 
   return (
     <KunImageLightbox
-      index={Math.max(currentImageIndex, 0)}
-      slides={visibleImages}
+      index={lightbox.index}
+      slides={lightbox.slides}
       open={true}
-      onClose={() => setOpenImage(null)}
+      onClose={() => setLightbox(null)}
     />
   )
 }
