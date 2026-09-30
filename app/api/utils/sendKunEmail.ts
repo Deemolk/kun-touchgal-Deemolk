@@ -1,5 +1,5 @@
 const SEND_EMAIL_TIMEOUT_MS = 15 * 1000
-const SEND_EMAIL_ERROR = '邮件发送失败, 请稍后重试'
+const SEND_EMAIL_ERROR = '邮件发送失败，请稍后重试'
 
 interface KunEmailPayload {
   to: string[]
@@ -12,18 +12,19 @@ interface KunEmailPayload {
 export const sendKunEmail = async (payload: KunEmailPayload) => {
   try {
     const res = await fetch(
-      `${process.env.KUN_VISUAL_NOVEL_EMAIL_HOST}/api/v1/send/message`,
+      `${process.env.KUN_VISUAL_NOVEL_EMAIL_HOST}/emails`,
       {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Server-API-Key': process.env.KUN_VISUAL_NOVEL_EMAIL_PASSWORD || '',
           Authorization: `Bearer ${process.env.KUN_VISUAL_NOVEL_EMAIL_PASSWORD}`
         },
         body: JSON.stringify({
-          from: process.env.KUN_VISUAL_NOVEL_EMAIL_ACCOUNT,
-          sender: `${process.env.KUN_VISUAL_NOVEL_EMAIL_FROM}<${process.env.KUN_VISUAL_NOVEL_EMAIL_ACCOUNT}>`,
-          ...payload
+          from: `${process.env.KUN_VISUAL_NOVEL_EMAIL_FROM} <${process.env.KUN_VISUAL_NOVEL_EMAIL_ACCOUNT}>`,
+          to: payload.to,
+          subject: payload.subject,
+          html: payload.html_body,
+          text: payload.plain_body
         }),
         signal: AbortSignal.timeout(SEND_EMAIL_TIMEOUT_MS)
       }
@@ -36,12 +37,6 @@ export const sendKunEmail = async (payload: KunEmailPayload) => {
         status: res.status,
         body: text
       })
-      return SEND_EMAIL_ERROR
-    }
-
-    const r = await res.json()
-    if (r.status === 'error') {
-      console.error('Failed to send email:', { tag: payload.tag, body: r })
       return SEND_EMAIL_ERROR
     }
   } catch (error) {
