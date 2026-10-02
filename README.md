@@ -4,17 +4,7 @@
 
 TouchGal 是一个一站式 Galgame 文化社区。提供Galgame 论坛、Galgame 下载等服务。承诺永久免费, 高质量。为Galgame 爱好者提供一片净土！
 
-## 错误反馈
 
-如果要反馈错误, 请您加入 TouchGal 的官方 Discord 服务器
-
-https://discord.gg/e4QePvPQTB
-
-## 开发联系
-
-如果有对 Web 开发技术 (Node.js, Nuxt, Next.js, SvelteKit, SolidStart 等) 感兴趣的朋友们, 可以加入本项目的 Telegram 开发群组
-
-[https://t.me/KUNForum](https://t.me/KUNForum)
 
 ## 如何运行
 
